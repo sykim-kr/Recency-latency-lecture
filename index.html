@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>고객 이탈은 갑자기 일어나지 않는다 — Recency/Latency 기반 리텐션 분석</title>
+  <style>
+:root {
+  --primary: #0B2D5B;
+  --secondary: #007BFF;
+  --accent: #FF9900;
+  --success: #2EAD4F;
+  --risk: #D93025;
+  --neutral: #F8F9FA;
+  --text: #212529;
+  --muted: #6B7280;
+  --border: #E5E7EB;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #111827; color: var(--text); font-family: Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif; }
+.deck { width: 100%; }
+.slide { position: relative; width: 100vw; min-height: 100vh; padding: 4vh 5vw; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #263244; background: radial-gradient(circle at 92% 12%, rgba(0,123,255,.10), transparent 28%), #fff; }
+.slide-inner { width: min(1180px, 100%); min-height: min(660px, 82vh); display: flex; flex-direction: column; justify-content: center; }
+.slide-number { position: absolute; top: 26px; right: 34px; color: #9CA3AF; font-weight: 700; letter-spacing: .08em; }
+h1 { margin: 0 0 22px; color: var(--primary); font-size: clamp(34px, 4vw, 58px); line-height: 1.08; letter-spacing: -0.04em; }
+h2 { margin: -8px 0 30px; color: var(--secondary); font-size: clamp(21px, 2.2vw, 32px); line-height: 1.25; font-weight: 700; }
+h3 { margin: 20px 0 8px; color: var(--primary); font-size: clamp(20px, 2vw, 28px); }
+p, li, td, th { font-size: clamp(19px, 1.75vw, 28px); line-height: 1.48; }
+p { margin: 10px 0; }
+ul { margin: 8px 0 18px; padding-left: 1.2em; }
+li { margin: 8px 0; }
+strong { color: var(--primary); font-weight: 800; }
+code { background: #EEF2FF; color: var(--primary); padding: 0.06em 0.28em; border-radius: 6px; font-size: .86em; }
+blockquote { margin: 24px 0; padding: 18px 24px; border-left: 8px solid var(--accent); background: #FFF7E6; color: #3B2A00; border-radius: 0 14px 14px 0; font-weight: 700; }
+blockquote p { margin: 0; font-size: clamp(22px, 2.2vw, 34px); }
+.data-table { width: 100%; border-collapse: collapse; margin: 18px 0; background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.data-table th { background: var(--primary); color: #fff; text-align: left; padding: 12px 14px; font-size: clamp(16px, 1.4vw, 22px); }
+.data-table td { border-top: 1px solid var(--border); padding: 12px 14px; font-size: clamp(16px, 1.4vw, 22px); }
+.visual-note { margin-top: 22px; padding: 14px 18px; background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E3A8A; border-radius: 14px; font-size: clamp(15px, 1.25vw, 20px); }
+.visual-note span { display: inline-block; margin-right: 10px; padding: 3px 8px; border-radius: 999px; background: var(--secondary); color: white; font-weight: 800; font-size: .8em; text-transform: uppercase; }
+.speaker-notes { margin-top: 14px; color: var(--muted); font-size: 16px; }
+.speaker-notes summary { cursor: pointer; font-weight: 700; color: var(--primary); }
+.speaker-notes p { font-size: 16px; line-height: 1.5; }
+.title-slide { background: linear-gradient(135deg, #0B2D5B 0%, #0D47A1 58%, #007BFF 100%); color: #fff; }
+.title-slide h1, .title-slide h2, .title-slide p, .title-slide li, .title-slide strong { color: #fff; }
+.title-slide .slide-number { color: rgba(255,255,255,.5); }
+.title-slide .content { max-width: 980px; }
+.title-slide .content ul { list-style: none; padding-left: 0; }
+.title-slide .content li { opacity: .92; }
+@media print {
+  body { background: #fff; }
+  .slide { width: 13.333in; height: 7.5in; min-height: auto; page-break-after: always; padding: .45in .65in; }
+  .slide-inner { min-height: 6.4in; }
+  .speaker-notes { display: none; }
+}
+</style>
+</head>
+<body>
+  <main class="deck">
+    
+<section class="slide title-slide" data-slide="00">
+  <div class="slide-number">00</div>
+  <div class="slide-inner">
+    <h1>고객 이탈은 갑자기 일어나지 않는다</h1>
+    <h2>Recency / Latency 기반 리텐션 분석과 CRM 자동화</h2>
+    <div class="content"><ul><li><strong>대상:</strong> CRM / Growth / Product Analytics / Marketing 실무자</li><li><strong>형식:</strong> 60~90분 강의용 슬라이드 원고 v2</li><li><strong>기반:</strong> Jim Novo, Marketing Productivity Blog (블로그 원문 중심, PDF 파싱 한계로 원문 직접 인용은 제한됨)</li><li><strong>작성:</strong> OCEO 크롱·또롱이</li></ul></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="01">
+  <div class="slide-number">01</div>
+  <div class="slide-inner">
+    <h1>SLIDE 01 — 오늘의 질문</h1>
+    
+    <div class="content"><p><strong>“고객은 정말 어느 날 갑자기 떠날까요?”</strong></p><p>대부분의 팀은 이탈을 이미 일어난 뒤에 발견합니다.</p><ul><li>월매출이 줄었다</li><li>뉴스레터 반응률이 떨어졌다</li><li>앱 재방문이 낮아졌다</li></ul><p>이것들은 <strong>결과</strong>입니다. 원인이 아닙니다.</p><blockquote><p>진짜 질문: “언제부터 고객이 덜 반응하기 시작했는가?”</p></blockquote></div>
+    <div class="visual-note"><span>Visual</span>매출 하락 알람 화면 → 그 이전 행동 신호 타임라인 (Active → Cooling → At-risk → Gone)</div>
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>이 강의는 기술 강의가 아닙니다. 타이밍 강의입니다. “이탈을 막는 것”이 아니라 “이탈 전에 먼저 움직이는 것”이 목표입니다. 오늘 강의 끝나고 내일 팀에서 실제로 써먹을 수 있는 것을 가져가셔야 합니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="02">
+  <div class="slide-number">02</div>
+  <div class="slide-inner">
+    <h1>SLIDE 02 — 오늘 강의가 끝나면 할 수 있어야 합니다</h1>
+    
+    <div class="content"><ul><li>평균 리텐션이 왜 위험한지 설명한다</li><li>Recency / Latency / Tripwire 개념을 팀에 설명한다</li><li>Mixpanel에서 Recency 코호트 리포트를 설계한다</li><li>CRM 자동화에서 Tripwire를 정의한다</li><li>캠페인을 <strong>Timing × Offer</strong> 관점으로 테스트한다</li></ul><blockquote><p><strong>핵심:</strong> 분석의 끝은 리포트가 아니라 개입 타이밍이다</p></blockquote></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>5가지 중 오늘 당장 하나라도 가져가시면 됩니다. 전부 기억하시려고 하지 마세요. 오늘 여러분 팀에 가장 필요한 것 하나에 집중하시면 됩니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="03">
+  <div class="slide-number">03</div>
+  <div class="slide-inner">
+    <h1>SLIDE 03 — 이탈은 이벤트가 아니라 프로세스다</h1>
+    
+    <div class="content"><p><strong>고객은 어느 날 사라지지 않습니다. 조금씩 멀어집니다.</strong></p><ul><li>덜 방문하고</li><li>덜 클릭하고</li><li>덜 구매하고</li><li>덜 반응하다가</li><li>그 다음에 사라집니다</li></ul><blockquote><p>같은 신호, 두 가지 이름: <strong>늦게 보면 Win-back, 일찍 보면 Retention</strong></p></blockquote></div>
+    <div class="visual-note"><span>Visual</span>고객 상태 흐름 — Active → Cooling → At-risk → Defected</div>
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>이걸 먼저 이해하셔야 합니다. 이탈은 우리가 모르는 사이에 이미 진행됩니다. Recency/Latency는 이 프로세스를 숫자로 보는 방법입니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="04">
+  <div class="slide-number">04</div>
+  <div class="slide-inner">
+    <h1>SLIDE 04 — 우리가 너무 늦게 보는 지표들</h1>
+    
+    <div class="content"><p>팀이 매주 보는 지표:</p><ul><li>월매출 / 전체 전환율</li><li>전체 캠페인 반응률</li><li>전체 활성 사용자 수</li><li>전체 리텐션</li></ul><p><strong>문제:</strong> 이 지표들은 모두 <strong>후행 지표</strong>입니다.</p><blockquote><p>지표가 움직였을 때는 이미 고객 행동 변화가 진행된 뒤입니다.</p></blockquote></div>
+    <div class="visual-note"><span>Visual</span>후행 지표 vs 선행 행동 신호 비교 타임라인</div>
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="05">
+  <div class="slide-number">05</div>
+  <div class="slide-inner">
+    <h1>SLIDE 05 — Jim Novo가 말하는 핵심</h1>
+    
+    <div class="content"><p>Jim Novo의 Customer Marketing 방법론 — 오래된 자료, 여전히 강한 프레임:</p><ul><li>복잡한 LTV 모델보다 <strong>시간 기반 행동 분석</strong></li><li>고객을 행동 주기로 쪼개서 본다</li><li>최근성과 지연성으로 <strong>개입 타이밍</strong>을 찾는다</li><li>모든 고객에게 같은 메시지 금지</li><li>반복 가능한 CRM 운영 시스템으로 만든다</li></ul><blockquote><p>Marketing Productivity: 같은 예산으로 더 높은 고객 가치를 만든다</p></blockquote></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>Jim Novo는 2000년대 초 블로그에서 이 방법론을 정리했습니다. 화려한 AI 모델이 아닙니다. 그런데 아직도 가장 현실적이고 즉시 쓸 수 있는 프레임입니다. 오늘 다 이해하실 수 있습니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="06">
+  <div class="slide-number">06</div>
+  <div class="slide-inner">
+    <h1>SLIDE 06 — Recency: 마지막 행동 이후 얼마나 지났는가?</h1>
+    
+    <div class="content"><p><strong>Recency = 마지막 의미 있는 행동 이후 경과 시간</strong></p><p>업종별 예시:</p><ul><li>이커머스: 마지막 구매 후 며칠</li><li>SaaS: 마지막 로그인 후 며칠</li><li>앱: 마지막 실행 후 며칠</li><li>뉴스레터: 마지막 클릭 후 며칠</li></ul><blockquote><p>“이 고객이 우리와 마지막으로 접촉한 게 언제인가?”</p></blockquote></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>가장 단순한 지표입니다. 그런데 이걸 실제로 리포트에 넣는 팀이 드뭅니다. “마지막 구매일”은 있는데 “마지막 구매 이후 며칠”을 자동으로 추적하는 팀은 적습니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="07">
+  <div class="slide-number">07</div>
+  <div class="slide-inner">
+    <h1>SLIDE 07 — Recency가 성과를 가른다</h1>
+    
+    <div class="content"><p><strong>최근에 행동한 고객일수록 다시 행동할 가능성이 높습니다.</strong></p><p>Recency 구간별 반응률은 이렇게 다릅니다:</p><table class="data-table"><tr><th>Recency 구간</th><th>반응률 수준</th></tr><tr><td>0~30일</td><td>매우 높음</td></tr><tr><td>31~60일</td><td>높음</td></tr><tr><td>61~90일</td><td>중간</td></tr><tr><td>91~180일</td><td>낮음</td></tr><tr><td>181일 이상</td><td>매우 낮음</td></tr></table><blockquote><p>전체 고객이 아니라, <strong>얼마나 최근 고객인가</strong>가 성과를 가릅니다.</p></blockquote></div>
+    <div class="visual-note"><span>Visual</span>Recency bucket별 반응률 하락 그래프 (우하향 곡선)</div>
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="08">
+  <div class="slide-number">08</div>
+  <div class="slide-inner">
+    <h1>SLIDE 08 — Latency: 정상 주기보다 늦어지고 있는가?</h1>
+    
+    <div class="content"><p><strong>Latency = 정상 행동 주기 또는 Milestone 대비 지연 정도</strong></p><p>업종별 예시:</p><ul><li>이커머스: 보통 30일마다 구매하던 고객이 45일째 미구매</li><li>SaaS 온보딩: 가입 7일 안에 핵심 기능 미사용</li><li>B2B: 평균 8주마다 Add-on 구매하던 고객이 12주째 미구매</li><li>예약 서비스: 월 1회 예약 고객이 2개월째 미예약</li></ul><blockquote><p>“이 고객은 자기 정상 패턴보다 <strong>늦어지고 있는가</strong>?”</p></blockquote></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="09">
+  <div class="slide-number">09</div>
+  <div class="slide-inner">
+    <h1>SLIDE 09 — Recency vs Latency: 질문이 다르다</h1>
+    
+    <div class="content"><p>두 지표 모두 시간 기반이지만, <strong>묻는 질문이 다릅니다.</strong></p><p><strong>Recency</strong></p><ul><li>“얼마나 오래 안 왔나?”</li><li>모든 고객을 같은 버킷으로 비교</li><li>이커머스·뉴스레터·앱에 적합</li></ul><p><strong>Latency</strong></p><ul><li>“자기 기준보다 이미 늦었나?”</li><li>세그먼트별 기준이 필요</li><li>B2B·온보딩·예약·Add-on에 적합</li></ul><blockquote><p>Recency는 절대 시간, Latency는 <strong>상대적 지연</strong>이다</p></blockquote></div>
+    <div class="visual-note"><span>Visual</span>두 개념 비교 다이어그램 (타임라인 2개)</div>
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>초보자에게는 Recency부터 시작하세요. Latency는 고객 주기가 파악되면 그 다음 단계입니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="10">
+  <div class="slide-number">10</div>
+  <div class="slide-inner">
+    <h1>SLIDE 10 — Tripwire: 개입해야 할 시점을 정의하라</h1>
+    
+    <div class="content"><p><strong>Tripwire = 고객 행동이 임계점을 넘는 순간 → 자동 개입을 발동하는 조건</strong></p><p>예시:</p><ul><li>마지막 구매 후 90일 경과</li><li>마지막 로그인 후 14일 경과</li><li>가입 후 7일 내 핵심 기능 미사용</li><li>Add-on 구매 평균 주기 초과</li></ul><blockquote><p>언제 개입해야 <strong>가장 적은 비용으로 가장 큰 행동 변화</strong>를 만들 수 있는가?</p></blockquote></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>Tripwire는 “이 선을 넘으면 우리가 움직인다”는 기준입니다. 이 기준이 없으면 CRM은 “반응률 보면서 보내는 것”에 그칩니다. Tripwire가 있어야 CRM이 시스템이 됩니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="11">
+  <div class="slide-number">11</div>
+  <div class="slide-inner">
+    <h1>SLIDE 11 — 너무 이르면, 너무 늦으면</h1>
+    
+    <div class="content"><p><strong>개입 타이밍이 전부입니다.</strong></p><table class="data-table"><tr><th>시점</th><th>결과</th></tr><tr><td>너무 이른 개입</td><td>원래 돌아올 고객에게 할인만 줌 → 마진 손실 + 할인 학습</td></tr><tr><td>너무 늦은 개입</td><td>이미 떠난 고객 Win-back → 비용 높고 반응률 낮음</td></tr><tr><td>적절한 개입</td><td>최소 비용으로 이탈 지연 → CRM ROI 최대화</td></tr></table><blockquote><p>Tripwire는 이 “적절한 시점”을 데이터로 정의하는 작업입니다.</p></blockquote></div>
+    <div class="visual-note"><span>Visual</span>개입 타이밍 곡선 — 너무 이름/최적/너무 늦음 구간 표시</div>
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="12">
+  <div class="slide-number">12</div>
+  <div class="slide-inner">
+    <h1>SLIDE 12 — 평균의 착시: 10% 반응률의 진실</h1>
+    
+    <div class="content"><p><strong>전체 반응률이 10%인 캠페인을 Recency로 쪼개면:</strong></p><table class="data-table"><tr><th>Recency 구간</th><th>반응률</th></tr><tr><td>최근 1개월 고객</td><td><strong>28%</strong></td></tr><tr><td>12개월 이상 고객</td><td><strong>0.6%</strong></td></tr></table><p>같은 예산, 같은 메시지인데 <strong>40배 이상의 성과 차이</strong>가 납니다.</p><blockquote><p>평균은 성과를 설명하지 않습니다. <strong>평균은 차이를 숨깁니다.</strong></p></blockquote></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>이 숫자가 오늘 강의에서 가장 중요한 슬라이드입니다. 팀 보고서에 “반응률 10%”라고만 적혀 있다면, 그건 아무것도 설명하지 않는 겁니다. 누가 반응했는지가 핵심입니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="13">
+  <div class="slide-number">13</div>
+  <div class="slide-inner">
+    <h1>SLIDE 13 — 평균에서 세그먼트로: 실무 액션</h1>
+    
+    <div class="content"><p>캠페인 성과를 볼 때 이렇게 질문합니다:</p><ul><li>Recency 구간별 반응률은 어떻게 다른가?</li><li>어느 구간은 예산 낭비인가?</li><li>어느 구간에 더 강한 Offer를 테스트할 가치가 있는가?</li><li>어느 구간은 “재획득 대상”이지 “고객”이 아닌가?</li></ul><p><strong>Action:</strong> 전체 평균 리포트 하나로 끝내지 말고 → Recency bucket별 캠페인 성과 리포트를 만든다</p></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="14">
+  <div class="slide-number">14</div>
+  <div class="slide-inner">
+    <h1>SLIDE 14 — 사례 1 | Web Retail: 3%가 31%를 만든다</h1>
+    
+    <div class="content"><p>IMissAsia.com의 뉴스레터 반응률 하락 분석:</p><p><strong>전체 고객 분포:</strong></p><ul><li>0~30일 고객: <strong>3%</strong></li><li>181일 이상 고객: <strong>31%</strong></li></ul><p><strong>뉴스레터 반응자 분포:</strong></p><ul><li>0~30일 고객이 반응자의 <strong>31%</strong></li><li>0~60일 고객(전체 9%)이 반응의 <strong>절반 가까이</strong></li></ul><blockquote><p>3%의 최근 고객이 성과의 1/3을 만들었습니다.</p></blockquote></div>
+    <div class="visual-note"><span>Visual</span>고객 분포(파이) vs 반응자 분포(파이) 나란히 비교</div>
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>이 사례가 중요한 이유는 “콘텐츠가 문제가 아니었다”는 겁니다. 고객 베이스 자체가 오래되어 있었습니다. 문제가 다르면 해결책도 달라야 합니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="15">
+  <div class="slide-number">15</div>
+  <div class="slide-inner">
+    <h1>SLIDE 15 — 사례 1 교훈: 고객 베이스의 구조를 먼저 보라</h1>
+    
+    <div class="content"><p>뉴스레터 성과는 전체 고객에게 균등하지 않습니다. 최근 고객에 집중됩니다.</p><p>실무 액션:</p><ul><li>최근 고객 → 과도한 할인 X, 추천 상품 중심</li><li>오래된 고객 → 강한 메시지도 반응 안 함, 별도 전략 필요</li><li>반응률이 급격히 떨어지는 구간(예: 91~120일)을 찾아 테스트 설계</li></ul><p><strong>Action:</strong> 먼저 고객 베이스의 Recency 분포를 확인하라 → 캠페인 전략은 그 다음</p></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="16">
+  <div class="slide-number">16</div>
+  <div class="slide-inner">
+    <h1>SLIDE 16 — 사례 2 | Hair Salon: 평균 40일의 함정</h1>
+    
+    <div class="content"><p>Salon B의 실험:</p><ul><li>고가치 고객 평균 방문 주기: <strong>40일</strong></li><li>40일 이상 미방문 고객에게 할인 엽서 발송</li><li>초기 반응률: <strong>25%</strong></li></ul><p>그런데 문제가 있었습니다:</p><ul><li>“어차피 예약하려고 했다” → 불필요한 할인</li><li>이미 너무 늦어서 돌아오지 않는 고객도 섞임</li></ul><blockquote><p>평균 40일 기준이 너무 거칠었던 겁니다.</p></blockquote></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="17">
+  <div class="slide-number">17</div>
+  <div class="slide-inner">
+    <h1>SLIDE 17 — Hair Salon의 진짜 발견: 세그먼트가 기준을 바꾼다</h1>
+    
+    <div class="content"><p>고객을 머리 길이로 나누자:</p><table class="data-table"><tr><th>세그먼트</th><th>평균 방문 주기</th></tr><tr><td>긴 머리 고객</td><td><strong>75일</strong></td></tr><tr><td>짧은 머리 고객</td><td><strong>20일</strong></td></tr></table><p>40일 기준의 문제:</p><ul><li>긴 머리 고객: 너무 이른 개입 → 불필요한 할인</li><li>짧은 머리 고객: 너무 늦은 개입 → 이미 이탈 후</li></ul><p><strong>세그먼트별 기준으로 변경 후 → 타깃 고객 반응률 30% 증가</strong></p><blockquote><p>평균 Tripwire는 좋은 출발점이지만, 최종 답은 아니다.</p></blockquote></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>이 사례에서 기술이 없습니다. 엑셀로도 할 수 있는 분석입니다. 중요한 건 “왜 나눠야 하는가”를 이해하는 것입니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="18">
+  <div class="slide-number">18</div>
+  <div class="slide-inner">
+    <h1>SLIDE 18 — 사례 3 | B2B Software: 월매출로는 원인을 못 찾는다</h1>
+    
+    <div class="content"><p>기본 제품 판매는 증가, Add-on 매출은 기대 이하.</p><p><strong>나쁜 질문:</strong> “왜 Add-on 매출이 둔화됐을까?”</p><p>↓</p><p>월별 매출 데이터만 보면 답이 없습니다.</p><p><strong>좋은 질문:</strong> “고객이 Base 구매 후 Add-on을 사기까지 걸리는 시간이 늘었는가?”</p><blockquote><p>결과 지표가 아니라 <strong>단계 간 지연</strong>을 봐야 합니다.</p></blockquote></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="19">
+  <div class="slide-number">19</div>
+  <div class="slide-inner">
+    <h1>SLIDE 19 — B2B Software: 단계별로 쪼개야 원인이 보인다</h1>
+    
+    <div class="content"><p><strong>Add-on 간 평균 구매 간격 비교 (전년도 → 올해):</strong></p><table class="data-table"><tr><th>단계</th><th>전년도</th><th>올해</th></tr><tr><td>Base → 1st add-on</td><td>12.3주</td><td>12.1주</td></tr><tr><td>1st → 2nd</td><td>10.5주</td><td>10.2주</td></tr><tr><td>2nd → 3rd</td><td>8.7주</td><td>8.9주</td></tr><tr><td>3rd → 4th</td><td>6.1주</td><td><strong>6.7주</strong></td></tr><tr><td>4th → 5th</td><td>5.2주</td><td><strong>6.5주</strong></td></tr></table><p>후반 단계에서 지연이 발생. 추가 분석: <strong>신규 영업사원 고객군</strong>에서 Lifecycle 차이 발견</p><blockquote><p>데이터를 나눌수록 원인이 보입니다.</p></blockquote></div>
+    <div class="visual-note"><span>Visual</span>단계별 간격 변화 bar chart (전년도 vs 올해 비교)</div>
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>이 사례의 핵심은 “평균”이 아니라 “어느 단계에서 지연이 발생하는가”를 본 겁니다. 영업사원별로 나누니 신규 입사자 고객군에서 문제가 발견됐습니다. 교육 문제였습니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="20">
+  <div class="slide-number">20</div>
+  <div class="slide-inner">
+    <h1>SLIDE 20 — B2B/온보딩에서 봐야 할 Latency Milestone</h1>
+    
+    <div class="content"><p>B2B와 SaaS에서 봐야 할 단계 간 시간:</p><ul><li>Signup → Activation까지 걸리는 시간</li><li>Activation → First Value까지 걸리는 시간</li><li>First Value → Paid Conversion까지 걸리는 시간</li><li>Base Product → Add-on까지 걸리는 시간</li><li>Renewal 전 위험 신호 (사용량 감소, 로그인 감소)</li></ul><p><strong>Action:</strong> Milestone별 Latency를 측정하고, 지연이 발생하는 단계에 세일즈/CS/교육 개입을 설계한다</p></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="21">
+  <div class="slide-number">21</div>
+  <div class="slide-inner">
+    <h1>SLIDE 21 — 사례 4 | Timing × Offer: 순이익으로 판단하라</h1>
+    
+    <div class="content"><p>Jim Novo의 3개월 Recency 고객 할인 테스트:</p><table class="data-table"><tr><th>할인율</th><th>반응률</th><th>순이익</th></tr><tr><td>5%</td><td>2%</td><td>400</td></tr><tr><td>10%</td><td>4%</td><td>640</td></tr><tr><td><strong>15%</strong></td><td><strong>6%</strong></td><td><strong>720</strong> ← 최적</td></tr><tr><td>20%</td><td>8%</td><td>640</td></tr></table><p>반응률만 보면 20% 할인이 이깁니다.</p><p>순이익은 <strong>15% 할인</strong>이 가장 높습니다.</p><blockquote><p>CRM의 목표는 클릭률이 아니라 <strong>고객 가치와 수익성</strong>입니다.</p></blockquote></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>이 표를 팀 보고서에 넣어보세요. “반응률이 가장 높은 할인”과 “순이익이 가장 높은 할인”이 다르다는 걸 숫자로 보여주는 겁니다. 경영진 설득에 매우 효과적입니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="22">
+  <div class="slide-number">22</div>
+  <div class="slide-inner">
+    <h1>SLIDE 22 — Mixpanel 리포트 설계 개요</h1>
+    
+    <div class="content"><p>4가지 리포트를 설계합니다:</p><ul><li><strong>Recency Distribution</strong> — 고객 베이스 구조 파악</li><li><strong>Response by Recency</strong> — 캠페인 성과 구간별 분석</li><li><strong>Latency Tripwire</strong> — 위험 고객 자동 식별</li><li><strong>Milestone Latency</strong> — 단계 간 지연 분석 (B2B/온보딩)</li></ul><blockquote><p>이 4개 리포트가 있으면 리텐션 CRM의 기반이 갖춰집니다.</p></blockquote></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="23">
+  <div class="slide-number">23</div>
+  <div class="slide-inner">
+    <h1>SLIDE 23 — Mixpanel Report 1 | Recency Distribution</h1>
+    
+    <div class="content"><p><strong>목적:</strong> 고객 베이스가 최근 고객 중심인지, 오래된 고객이 쌓이는지 파악</p><p>설계:</p><ul><li>Report Type: Insights / User Profile Segmentation</li><li>Event: Purchase / App Open / Login / Key Action</li><li>Breakdown: <code>days_since_last_event</code> bucket</li><li>Visualization: Stacked bar chart</li></ul><p>해석 질문:</p><ul><li>최근 30일 고객 비중은 얼마인가?</li><li>90일 이상 비활성 고객이 과도하게 쌓이는가?</li><li>특정 유입 채널 고객이 더 빨리 오래된 구간으로 이동하는가?</li></ul></div>
+    <div class="visual-note"><span>Visual</span>Mixpanel Insights 화면 모형 (Recency bucket bar chart)</div>
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="24">
+  <div class="slide-number">24</div>
+  <div class="slide-inner">
+    <h1>SLIDE 24 — Mixpanel Report 2 | Response by Recency</h1>
+    
+    <div class="content"><p><strong>목적:</strong> 전체 캠페인 반응률 뒤에 숨은 구간별 성과 차이 확인</p><p>설계:</p><ul><li>Report Type: Insights</li><li>Event: Campaign Sent → Click / Purchase / Conversion</li><li>Breakdown: Recency bucket at send time</li><li>Visualization: Grouped bar chart</li></ul><p>해석 질문:</p><ul><li>Recency 구간별 반응률은 어떻게 다른가?</li><li>예산을 줄여야 할 구간은?</li><li>더 강한 Offer를 테스트할 구간은?</li></ul></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>이 리포트만 만들어도 오늘 강의 본전은 찾은 겁니다. 캠페인 보고서에 전체 반응률 하나만 있다면 지금 당장 이 리포트 추가하세요.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="25">
+  <div class="slide-number">25</div>
+  <div class="slide-inner">
+    <h1>SLIDE 25 — Mixpanel Report 3 | Latency Tripwire</h1>
+    
+    <div class="content"><p><strong>목적:</strong> 정상 주기 대비 늦어진 고객을 CRM 자동화 대상으로 식별</p><p>설계:</p><ul><li>Report Type: Cohort / Custom Property</li><li>Event: Purchase / Booking / Add-on / Key Feature Use</li><li>Breakdown: <code>expected_interval_segment</code> + <code>actual_days_since_last_event</code></li><li>Filters: customer_type, product_type, plan</li></ul><p>해석 질문:</p><ul><li>세그먼트별 정상 주기는 얼마인가?</li><li>현재 정상 주기를 초과한 고객은 몇 명인가?</li><li>어느 세그먼트가 가장 빠르게 Tripwire를 넘는가?</li></ul></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="26">
+  <div class="slide-number">26</div>
+  <div class="slide-inner">
+    <h1>SLIDE 26 — Mixpanel Report 4 | Milestone Latency (B2B/온보딩)</h1>
+    
+    <div class="content"><p><strong>목적:</strong> 어느 단계에서 지연이 발생하는지, 어느 세그먼트가 문제인지 확인</p><p>Funnel 예시:</p><ul><li>Signup → Activation → First Value → Add-on Purchase → Renewal</li></ul><p>Breakdown 기준:</p><ul><li>source / salesperson / industry / plan / onboarding path</li></ul><p>해석 질문:</p><ul><li>어느 단계 간격이 길어지고 있는가?</li><li>어느 세그먼트(채널, 담당자, 고객 유형)에서 문제인가?</li></ul></div>
+    <div class="visual-note"><span>Visual</span>Funnel + 단계별 평균 일수 표 (전기 vs 이번 기 비교)</div>
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="27">
+  <div class="slide-number">27</div>
+  <div class="slide-inner">
+    <h1>SLIDE 27 — CRM 자동화 설계 공식</h1>
+    
+    <div class="content"><p>CRM 자동화를 설계할 때 반드시 5가지를 명확히:</p><ul><li><strong>Trigger</strong> — 어떤 행동 조건에서 발동하는가?</li><li><strong>Segment</strong> — 누구에게 보내는가?</li><li><strong>Timing</strong> — 언제 보내는가?</li><li><strong>Message/Offer</strong> — 무엇을 제안하는가?</li><li><strong>Measurement</strong> — 성공을 무엇으로 판단하는가?</li></ul><blockquote><p><strong>자동화는 발송 룰이 아니라 측정 가능한 개입 시스템이다</strong></p></blockquote></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>5번 Measurement가 빠진 CRM 자동화는 그냥 자동 스팸입니다. 보냈는데 됐는지 안 됐는지 모르면, 다음 번에 더 잘 할 수 없습니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="28">
+  <div class="slide-number">28</div>
+  <div class="slide-inner">
+    <h1>SLIDE 28 — CRM Scenario 1 | 이커머스 재구매 자동화</h1>
+    
+    <div class="content"><table class="data-table"><tr><th>항목</th><th>내용</th></tr><tr><td><strong>Trigger</strong></td><td>마지막 구매 후 60일 경과 + 최근 12개월 2회 이상 구매</td></tr><tr><td><strong>Segment</strong></td><td>기존 반복 구매 고객</td></tr><tr><td><strong>Timing</strong></td><td>60일 후 1차 → 75일 후 2차</td></tr><tr><td><strong>Message</strong></td><td>최근 구매 상품 연관 보충/추천</td></tr><tr><td><strong>Measurement</strong></td><td>재구매율 / 매출 / 할인 비용 / 순마진</td></tr></table></div>
+    <div class="visual-note"><span>Visual</span>자동화 플로우 다이어그램</div>
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="29">
+  <div class="slide-number">29</div>
+  <div class="slide-inner">
+    <h1>SLIDE 29 — CRM Scenario 2 | 앱 Activation 자동화</h1>
+    
+    <div class="content"><table class="data-table"><tr><th>항목</th><th>내용</th></tr><tr><td><strong>Trigger</strong></td><td>가입 후 7일 내 핵심 기능 미사용</td></tr><tr><td><strong>Segment</strong></td><td>신규 가입자 중 Activation 미완료</td></tr><tr><td><strong>Timing</strong></td><td>D+3 교육 → D+7 리마인드 → D+10 개인화</td></tr><tr><td><strong>Message</strong></td><td>첫 성공 경험을 만드는 짧은 가이드</td></tr><tr><td><strong>Measurement</strong></td><td>핵심 기능 사용률 / D7·D14 Retention / 유료 전환율</td></tr></table></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>Activation 자동화는 ROI가 가장 높은 CRM 중 하나입니다. 이미 가입한 고객이니 획득 비용은 0. 여기서 이탈하면 획득 비용이 완전히 낭비됩니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="30">
+  <div class="slide-number">30</div>
+  <div class="slide-inner">
+    <h1>SLIDE 30 — CRM Scenario 3 | B2B SaaS Add-on 지연 자동화</h1>
+    
+    <div class="content"><table class="data-table"><tr><th>항목</th><th>내용</th></tr><tr><td><strong>Trigger</strong></td><td>Base 구매 후 평균 Add-on 구매 주기 초과</td></tr><tr><td><strong>Segment</strong></td><td>온보딩 완료 계정 중 Add-on 미구매</td></tr><tr><td><strong>Timing</strong></td><td>평균 주기 초과 직전 세일즈/CS 알림</td></tr><tr><td><strong>Message</strong></td><td>사용 맥락별 Add-on 활용 사례 + ROI 계산</td></tr><tr><td><strong>Measurement</strong></td><td>Add-on conversion / time-to-add-on / expansion revenue</td></tr></table></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="31">
+  <div class="slide-number">31</div>
+  <div class="slide-inner">
+    <h1>SLIDE 31 — A/B Test 프레임: Tripwire 타이밍 최적화</h1>
+    
+    <div class="content"><p><strong>가설:</strong> 초기 Tripwire 개입은 늦은 Win-back보다 수익성이 높다</p><ul><li>Target: 반복 구매 고객</li><li>Variant A: 60일 경과 시 메시지</li><li>Variant B: 90일 경과 시 메시지</li><li>Variant C: 120일 경과 시 메시지</li><li>KPI: 재구매율 / 할인 비용 / <strong>순마진</strong> (반응률이 아닌 수익성 중심)</li><li>Learning: 개입 최적 시점 도출 → Tripwire 기준 업데이트</li></ul></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="32">
+  <div class="slide-number">32</div>
+  <div class="slide-inner">
+    <h1>SLIDE 32 — A/B Test 프레임: 구간별 Offer 최적화</h1>
+    
+    <div class="content"><p><strong>가설:</strong> Recency 구간별로 최적 Offer가 다르다</p><ul><li>Target: 마지막 구매 후 91~120일 고객 (위험 전환 구간)</li><li>Variant A: 10% 할인</li><li>Variant B: 15% 할인</li><li>Variant C: 20% 할인</li><li>KPI: 구매 전환율 / 할인 비용 / <strong>순이익</strong></li><li>Learning: 반응률이 가장 높은 Offer ≠ 수익성 최고 Offer → 차이 확인</li></ul></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>두 A/B 테스트의 공통점: KPI가 반응률이 아니라 순이익입니다. 이게 CRM 팀이 경영진에게 신뢰를 얻는 방법입니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="33">
+  <div class="slide-number">33</div>
+  <div class="slide-inner">
+    <h1>SLIDE 33 — 팀 실습: 우리 서비스의 Tripwire 설계</h1>
+    
+    <div class="content"><p><strong>팀별로 아래 질문에 답합니다 (15~20분):</strong></p><ul><li>우리 서비스의 핵심 반복 행동은 무엇인가?</li><li>마지막 행동 후 며칠이 지나면 위험 신호인가?</li><li>전체 평균 기준 vs 세그먼트별 기준 — 어느 쪽이 맞는가?</li><li>너무 이른 개입의 비용은 무엇인가?</li><li>너무 늦은 개입의 비용은 무엇인가?</li></ul><p><strong>Output (팀별 1장):</strong></p><ul><li>Trigger condition</li><li>Target segment</li><li>Message timing</li><li>Success KPI</li></ul></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="34">
+  <div class="slide-number">34</div>
+  <div class="slide-inner">
+    <h1>SLIDE 34 — 팀 실습: Timing × Offer Grid 워크시트</h1>
+    
+    <div class="content"><table class="data-table"><tr><th>Recency/Latency 구간</th><th>고객 상태</th><th>개입 목적</th><th>메시지/Offer</th><th>KPI</th></tr><tr><td>0~30일</td><td>활성</td><td>재구매 촉진</td><td>추천 상품</td><td>재구매율</td></tr><tr><td>31~60일</td><td>약한 둔화</td><td>관계 유지</td><td>콘텐츠+추천</td><td>클릭률</td></tr><tr><td>61~90일</td><td>위험 시작</td><td>이탈 방지</td><td>혜택 테스트</td><td>전환율</td></tr><tr><td>91~120일</td><td>이탈 위험</td><td>강한 개입</td><td>최적 Offer</td><td>순이익</td></tr><tr><td>181일 이상</td><td>이탈/휴면</td><td>재획득</td><td>Win-back 별도</td><td>재활성율</td></tr></table><p><strong>각 팀이 자기 서비스 기준으로 이 표를 채웁니다.</strong></p></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="35">
+  <div class="slide-number">35</div>
+  <div class="slide-inner">
+    <h1>SLIDE 35 — 실무 적용 체크리스트</h1>
+    
+    <div class="content"><p>리텐션 CRM 설계 전 확인:</p><ul><li>[ ] 핵심 반복 행동이 정의되어 있는가?</li><li>[ ] 마지막 행동일을 추적하고 있는가?</li><li>[ ] Recency bucket을 만들 수 있는가?</li><li>[ ] 세그먼트별 정상 주기를 알고 있는가?</li><li>[ ] Tripwire 기준이 데이터로 검증되었는가?</li><li>[ ] CRM 메시지와 분석 리포트가 연결되어 있는가?</li><li>[ ] KPI가 반응률 외에 순이익·마진까지 포함하는가?</li></ul><blockquote><p>체크 못 한 항목이 오늘 당장 해야 할 일입니다.</p></blockquote></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="36">
+  <div class="slide-number">36</div>
+  <div class="slide-inner">
+    <h1>SLIDE 36 — 오늘의 핵심 5가지</h1>
+    
+    <div class="content"><ul><li><strong>이탈은 이벤트가 아니라 프로세스다</strong> — 행동 신호는 먼저 온다</li><li><strong>평균은 차이를 숨긴다</strong> — Recency bucket으로 쪼개라</li><li><strong>행동을 바꾸려면 행동 변수로 타깃팅해야 한다</strong> — 전체 대상 일괄 발송 금지</li><li><strong>리텐션 마케팅 = 더 많이 보내는 것이 아니라 더 정확한 시점에 개입하는 것</strong></li><li><strong>CRM 자동화 = 룰이 아니라 반복 학습 시스템</strong> — 측정 없이 자동화 없다</li></ul><blockquote><p>Data → Insight → Action → Experiment → Learning</p></blockquote><p>이 순환이 만들어질 때, 리텐션 분석은 진짜 성장 운영 시스템이 됩니다.</p></div>
+    
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>오늘 5가지를 다 기억하려 하지 마세요. 내일 팀에 가서 딱 하나만 바꾸세요. 캠페인 보고서에 Recency 구간별 반응률 추가하는 것. 그 하나만 해도 이 강의 값어치를 합니다.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-slide="37">
+  <div class="slide-number">37</div>
+  <div class="slide-inner">
+    <h1>SLIDE 37 — 다음 단계</h1>
+    
+    <div class="content"><p>이 강의자료를 실제 실행 자산으로 만들려면:</p><ul><li><strong>업종별 샘플 데이터셋</strong> 또는 Mixpanel 데모 프로젝트</li><li><strong>Mixpanel 리포트 모형 화면</strong> (Report 1~4 캡처/목업)</li><li><strong>CRM 자동화 플로우 다이어그램</strong> (이커머스/SaaS/B2B)</li><li><strong>Timing × Offer Grid Google Sheet 템플릿</strong></li><li><strong>실습용 데이터 + 과제 가이드</strong></li><li><strong>슬라이드 디자인 및 도식화</strong> (PPTX 또는 Google Slides)</li></ul><p><strong>추천 분업:</strong></p><ul><li>Claude: 논리 정교화·문안 다듬기</li><li>Gemini: 시각화·Google Slides 레이아웃 제안</li><li>최종: Google Slides 또는 Canva 제작</li></ul></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="38">
+  <div class="slide-number">38</div>
+  <div class="slide-inner">
+    <h1>Appendix A — 원문 근거</h1>
+    
+    <div class="content"><p>Jim Novo, Marketing Productivity Blog (블로그 원문 기반):</p><ul><li>[Methodology and Examples](https://blog.jimnovo.com/methodology_examples/)</li><li>Part 1: Attrition and Retention</li><li>Part 2: Proving the Business Case Simply</li><li>Part 3: Spreading the Average</li><li>Part 4: Setting the Tripwires</li><li>Part 5: Repeatability and Consistency</li><li>Hair Salon Example</li><li>B2B Software Example</li><li>Web Retail Recency Example (IMissAsia.com)</li></ul><blockquote><p>주의: 무료 PDF 파싱 한계로 수치 일부는 블로그 원문 기준. 강의 시 원문 확인 권장.</p></blockquote></div>
+    
+    
+  </div>
+</section>
+
+<section class="slide" data-slide="39">
+  <div class="slide-number">39</div>
+  <div class="slide-inner">
+    <h1>Appendix B — 강의 버전별 운영안</h1>
+    
+    <div class="content"><table class="data-table"><tr><th>형식</th><th>시간</th><th>구성</th></tr><tr><td>세미나형</td><td>60분</td><td>개념(Slide 01~11) + 사례 2개(12~21) + Mixpanel 소개(22~26) + CRM 예시 1개(27~28)</td></tr><tr><td>워크숍형</td><td>90분</td><td>전체 개념·사례 + Tripwire 설계 실습(33) + Timing×Offer Grid(34) + 팀별 발표</td></tr><tr><td>핸즈온형</td><td>3시간</td><td>샘플 데이터 제공 + Recency bucket 생성 + Mixpanel 리포트 설계 + CRM 시나리오 작성 + A/B 테스트 설계</td></tr></table></div>
+    
+    
+  </div>
+</section>
+
+  </main>
+  <script>
+const slides = [...document.querySelectorAll('.slide')];
+let current = 0;
+function show(i) {
+  current = Math.max(0, Math.min(slides.length - 1, i));
+  slides[current].scrollIntoView({behavior: 'smooth'});
+}
+document.addEventListener('keydown', (e) => {
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(current + 1); }
+  if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(current - 1); }
+  if (e.key === 'Home') show(0);
+  if (e.key === 'End') show(slides.length - 1);
+});
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(entry => { if (entry.isIntersecting) current = slides.indexOf(entry.target); });
+}, { threshold: .6 });
+slides.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
