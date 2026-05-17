@@ -12,6 +12,10 @@
 - `index.html` — 브라우저에서 바로 열 수 있는 HTML 확인본
 - `recency-latency-retention-crm-lecture-v3-final-draft.pptx` — PowerPoint 구조 초안
 - `recency-latency-retention-crm-lecture-full-workshop-v3-final.pptx` — 다운로드/공유용 PowerPoint 파일명
+- `facilitator-guide.md` — 3시간 워크숍 강의자 운영안
+- `worksheets/worksheet-1-recency-30-60-90.md` — Recency bucket 실습지
+- `worksheets/worksheet-2-latency-sequence-tripwire.md` — Latency/Tripwire 실습지
+- `worksheets/worksheet-3-timing-offer-profit-grid.md` — Timing × Offer × Profit 실습지
 
 ## GitHub Pages
 
