@@ -3,7 +3,7 @@
 ## 현재 기준본
 
 - Version: **v3-final full workshop**
-- 기준: Jim Novo, *Drilling Down: Turning Customer Data into Profits with a Spreadsheet*, 3rd ed. PDF 원문 반영
+- 기준: 고객 행동 데이터 분석 원문 사례 및 PDF 원문 반영
 - 구성: 표지 1장 + 본문 SLIDE 01~52 = **총 53장**
 - 압축본은 만들지 않음. 3시간 워크숍/심화 강의용 full version을 기준으로 유지.
 
