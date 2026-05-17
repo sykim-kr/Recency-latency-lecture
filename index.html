@@ -62,8 +62,8 @@ blockquote p { margin: 0; font-size: clamp(22px, 2.2vw, 34px); }
   <div class="slide-number">00</div>
   <div class="slide-inner">
     <h1>고객 이탈은 갑자기 일어나지 않는다</h1>
-    <h2>고객 행동 데이터 기반 Recency / Latency 리텐션 분석과 CRM 자동화</h2>
-    <div class="content"><ul><li>대상: CRM / Growth / Product Analytics / Marketing 실무자</li><li>형식: 60~90분 강의용 슬라이드 원고 v3-final</li><li>기반: 고객 행동 데이터 분석 원문 사례 및 PDF 원문 반영</li><li>작성: OCEO 크롱·또롱이</li></ul></div>
+    <h2>내부 분석가를 위한 Recency / Latency 리텐션 분석 방법론</h2>
+    <div class="content"><ul><li>대상: 내부 분석가 / Product Analytics / CRM Analytics / Growth Analytics 담당자</li><li>형식: 내부 분석가 방법론 교육용 full workshop v3-final</li><li>기반: 고객 행동 데이터 분석 원문 사례 및 PDF 원문 반영</li><li>작성: OCEO 크롱·또롱이</li></ul></div>
     
     <details class="speaker-notes"><summary>Speaker Notes</summary><p>v3-final은 어제 v2와 오늘 PDF 반영 v3를 비교해 중복은 줄이고 실무 장표는 복구한 버전입니다. v3는 PDF 원문 확인 수치와 사례를 반영한 버전입니다. 본편에서는 원문 장문 인용을 피하고, 핵심 개념과 수치/페이지 근거는 강의자 메모와 source notes로 관리합니다.</p></details>
   </div>
@@ -85,7 +85,7 @@ blockquote p { margin: 0; font-size: clamp(22px, 2.2vw, 34px); }
   <div class="slide-inner">
     <h1>SLIDE 02 — 오늘 강의가 끝나면 할 수 있어야 합니다</h1>
     
-    <div class="content"><ul><li>전체 평균 리텐션/반응률이 왜 위험한지 설명한다</li><li>Recency / Latency / Tripwire를 구분한다</li><li>고객 행동 LifeCycle에서 마찰이 커지는 순간을 찾는다</li><li>Mixpanel/BigQuery에서 Recency·Latency 리포트를 설계한다</li><li>CRM 캠페인을 <strong>Timing × Offer × Profit</strong> 관점으로 테스트한다</li></ul><blockquote><p>분석의 끝은 리포트가 아니라 개입 타이밍입니다.</p></blockquote></div>
+    <div class="content"><ul><li>전체 평균 리텐션/반응률이 왜 위험한지 설명한다</li><li>Recency / Latency / Tripwire를 구분한다</li><li>고객 행동 LifeCycle에서 마찰이 커지는 순간을 찾는다</li><li>Mixpanel/BigQuery에서 Recency·Latency 리포트를 설계한다</li><li>CRM/리텐션 분석을 <strong>Timing × Offer × Profit</strong> 관점으로 검증한다</li></ul><blockquote><p>분석의 끝은 리포트가 아니라 검증 가능한 의사결정입니다.</p></blockquote></div>
     
     <details class="speaker-notes"><summary>Speaker Notes</summary><p>오늘은 복잡한 ML 모델보다 “돈이 남는 개입 구조”를 만드는 데 집중합니다.</p></details>
   </div>
@@ -415,7 +415,7 @@ blockquote p { margin: 0; font-size: clamp(22px, 2.2vw, 34px); }
   <div class="slide-inner">
     <h1>SLIDE 32 — Mixpanel 리포트 설계 개요</h1>
     
-    <div class="content"><p>4가지 리포트를 설계합니다:</p><ul><li><strong>Recency Distribution</strong> — 고객 베이스 구조 파악</li><li><strong>Response by Recency</strong> — 캠페인 성과 구간별 분석</li><li><strong>Latency Tripwire</strong> — 위험 고객 자동 식별</li><li><strong>Milestone Latency</strong> — 단계 간 지연 분석</li></ul><blockquote><p>이 4개 리포트가 있으면 리텐션 CRM의 기반이 갖춰집니다.</p></blockquote></div>
+    <div class="content"><p>4가지 리포트를 설계합니다:</p><ul><li><strong>Recency Distribution</strong> — 고객 베이스 구조 파악</li><li><strong>Response by Recency</strong> — 캠페인 성과 구간별 분석</li><li><strong>Latency Tripwire</strong> — 위험 고객 자동 식별</li><li><strong>Milestone Latency</strong> — 단계 간 지연 분석</li></ul><blockquote><p>이 4개 리포트가 있으면 분석가가 리텐션 문제를 진단하고 액션으로 연결할 기반이 갖춰집니다.</p></blockquote></div>
     <div class="visual-note"><span>Visual</span>4개 리포트 카드형 구성</div>
     
   </div>
@@ -481,9 +481,9 @@ blockquote p { margin: 0; font-size: clamp(22px, 2.2vw, 34px); }
   <div class="slide-inner">
     <h1>SLIDE 38 — CRM 자동화 설계 공식</h1>
     
-    <div class="content"><p>CRM 자동화를 설계할 때 반드시 5가지를 명확히 합니다:</p><ul><li><strong>Trigger</strong> — 어떤 행동 조건에서 발동하는가?</li><li><strong>Segment</strong> — 누구에게 보내는가?</li><li><strong>Timing</strong> — 언제 보내는가?</li><li><strong>Message/Offer</strong> — 무엇을 제안하는가?</li><li><strong>Measurement</strong> — 성공을 무엇으로 판단하는가?</li></ul><blockquote><p>자동화는 발송 룰이 아니라 측정 가능한 개입 시스템입니다.</p></blockquote></div>
+    <div class="content"><p>분석가가 CRM/리텐션 액션을 제안할 때 반드시 5가지를 명확히 합니다:</p><ul><li><strong>Trigger</strong> — 어떤 행동 조건에서 발동하는가?</li><li><strong>Segment</strong> — 누구에게 보내는가?</li><li><strong>Timing</strong> — 언제 보내는가?</li><li><strong>Message/Offer</strong> — 무엇을 제안하는가?</li><li><strong>Measurement</strong> — 성공을 무엇으로 판단하는가?</li></ul><blockquote><p>분석 제안은 아이디어가 아니라 측정 가능한 개입 시스템이어야 합니다.</p></blockquote></div>
     
-    <details class="speaker-notes"><summary>Speaker Notes</summary><p>Measurement가 빠진 CRM 자동화는 자동 스팸에 가깝습니다. 보냈는데 됐는지 안 됐는지 모르면 다음 번에 더 잘할 수 없습니다.</p></details>
+    <details class="speaker-notes"><summary>Speaker Notes</summary><p>내부 분석가 교육에서는 “어떤 리포트를 만들 것인가”보다 “이 리포트가 어떤 의사결정을 바꿀 것인가”를 계속 묻습니다. Measurement가 빠진 액션 제안은 분석 산출물이 아니라 아이디어 메모에 가깝습니다.</p></details>
   </div>
 </section>
 
@@ -635,7 +635,7 @@ blockquote p { margin: 0; font-size: clamp(22px, 2.2vw, 34px); }
   <div class="slide-inner">
     <h1>SLIDE 52 — 내일부터 팀에서 해볼 일</h1>
     
-    <div class="content"><p>이번 주 실행 체크리스트:</p><ul><li>핵심 행동 1개를 정한다</li><li>Recency 30-60-90 분포를 뽑는다</li><li>응답자/구매자 분포와 비교한다</li><li>반복 행동 Latency sequence를 계산한다</li><li>segment별 threshold 후보를 만든다</li><li>Timing × Offer × Profit 실험을 설계한다</li><li>control group을 반드시 둔다</li></ul><blockquote><p>작은 spreadsheet 하나로도 CRM ROI 구조는 바뀔 수 있습니다.</p></blockquote></div>
+    <div class="content"><p>내부 분석가 실무 적용 체크리스트:</p><ul><li>핵심 행동 1개를 정한다</li><li>Recency 30-60-90 분포를 뽑는다</li><li>응답자/구매자 분포와 비교한다</li><li>반복 행동 Latency sequence를 계산한다</li><li>segment별 threshold 후보를 만든다</li><li>Timing × Offer × Profit 실험을 설계한다</li><li>control group을 반드시 둔다</li></ul><blockquote><p>작은 spreadsheet 하나로도 분석 질문의 수준은 바뀔 수 있습니다.</p></blockquote></div>
     
     <details class="speaker-notes"><summary>Speaker Notes</summary><p>마지막 장은 내부 TODO가 아니라 수강자 액션으로 유지합니다.</p></details>
   </div>

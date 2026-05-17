@@ -2,20 +2,20 @@
 
 ## 현재 기준본
 
-- Version: **v3-final full workshop**
-- 기준: 고객 행동 데이터 분석 원문 사례 및 PDF 원문 반영
+- Version: **v3-final internal analyst methodology workshop**
+- 목적: 내부 분석가 대상 Recency/Latency 리텐션 분석 방법론 교육
 - 구성: 표지 1장 + 본문 SLIDE 01~52 = **총 53장**
-- 압축본은 만들지 않음. 3시간 워크숍/심화 강의용 full version을 기준으로 유지.
+- 압축본은 만들지 않음. 내부 분석가 3시간 방법론 워크숍용 full version을 기준으로 유지.
 
 ## 파일
 
 - `index.html` — 브라우저에서 바로 열 수 있는 HTML 확인본
 - `recency-latency-retention-crm-lecture-v3-final-draft.pptx` — PowerPoint 구조 초안
 - `recency-latency-retention-crm-lecture-full-workshop-v3-final.pptx` — 다운로드/공유용 PowerPoint 파일명
-- `facilitator-guide.md` — 3시간 워크숍 강의자 운영안
+- `facilitator-guide.md` — 내부 분석가 교육용 3시간 워크숍 운영안
 - `worksheets/worksheet-1-recency-30-60-90.md` — Recency bucket 실습지
 - `worksheets/worksheet-2-latency-sequence-tripwire.md` — Latency/Tripwire 실습지
-- `worksheets/worksheet-3-timing-offer-profit-grid.md` — Timing × Offer × Profit 실습지
+- `worksheets/worksheet-3-timing-offer-profit-grid.md` — Timing × Offer × Profit 분석/실험 설계 실습지
 
 ## GitHub Pages
 
