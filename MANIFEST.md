@@ -6,7 +6,8 @@ Generated: 2026-05-17 KST
 
 - `index.html` — HTML 확인본, 53 slides
 - `README.md` — 공개 폴더 설명
-- `recency-latency-retention-crm-lecture-full-workshop-v3-final.pptx` — 공유용 PPTX
+- `recency-latency-retention-crm-lecture-full-workshop-v3-final.pptx` — 이전 공유용 PPTX
+- `recency-latency-retention-methodology-internal-analyst-training-v1.pptx` — 실제 강의용 PowerPoint v1
 - `recency-latency-retention-crm-lecture-v3-final-draft.pptx` — 동일 내용의 제작 초안 파일명
 - `facilitator-guide.md` — 내부 분석가 교육용 강의자 운영안
 - `worksheets/` — 수강자 실습지 3종
@@ -25,6 +26,7 @@ Generated: 2026-05-17 KST
 - HTML slides: 53 sections
 - Markdown slide sections: 52 body slides + title
 - PPTX slides: 53 slides
+- Actual training PPT v1: generated
 - 공개/최종 자료 내 원저자명 직접 언급: 0건
 - 장표 과밀도 QA: 위험 장표 0건
 - Public folder excludes source PDF and internal notes

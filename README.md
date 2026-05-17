@@ -11,7 +11,8 @@
 
 - `index.html` — 브라우저에서 바로 열 수 있는 HTML 확인본
 - `recency-latency-retention-crm-lecture-v3-final-draft.pptx` — PowerPoint 구조 초안
-- `recency-latency-retention-crm-lecture-full-workshop-v3-final.pptx` — 다운로드/공유용 PowerPoint 파일명
+- `recency-latency-retention-crm-lecture-full-workshop-v3-final.pptx` — 이전 공유용 PowerPoint 파일명
+- `recency-latency-retention-methodology-internal-analyst-training-v1.pptx` — 실제 강의용 PowerPoint v1
 - `facilitator-guide.md` — 내부 분석가 교육용 3시간 워크숍 운영안
 - `worksheets/worksheet-1-recency-30-60-90.md` — Recency bucket 실습지
 - `worksheets/worksheet-2-latency-sequence-tripwire.md` — Latency/Tripwire 실습지
