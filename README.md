@@ -1,9 +1,17 @@
 # Recency/Latency 리텐션 강의 슬라이드
 
+## 현재 기준본
+
+- Version: **v3-final full workshop**
+- 기준: Jim Novo, *Drilling Down: Turning Customer Data into Profits with a Spreadsheet*, 3rd ed. PDF 원문 반영
+- 구성: 표지 1장 + 본문 SLIDE 01~52 = **총 53장**
+- 압축본은 만들지 않음. 3시간 워크숍/심화 강의용 full version을 기준으로 유지.
+
 ## 파일
 
-- `index.html` — 브라우저에서 바로 열 수 있는 HTML 슬라이드 본편
-- `recency-latency-retention-crm-lecture-draft.pptx` — PowerPoint 초안
+- `index.html` — 브라우저에서 바로 열 수 있는 HTML 확인본
+- `recency-latency-retention-crm-lecture-v3-final-draft.pptx` — PowerPoint 구조 초안
+- `recency-latency-retention-crm-lecture-full-workshop-v3-final.pptx` — 다운로드/공유용 PowerPoint 파일명
 
 ## GitHub Pages
 
@@ -13,10 +21,15 @@ https://sykim-kr.github.io/Recency-latency-lecture/
 
 ## 슬라이드 구성
 
-- 표지 1장
-- 본문 SLIDE 01~37
-- Appendix 제외
-- 총 38장
+핵심 흐름:
+
+1. 이탈은 이벤트가 아니라 LifeCycle/Friction 변화
+2. 전체 평균의 함정과 Recency 세그먼트
+3. Latency / Tripwire / Latency Sequence
+4. Hair Salon, B2B Software, Online Retail 사례
+5. Discount Ladder, Control Group, Profit-based validation
+6. Mixpanel / BigQuery / CRM Journey 설계
+7. 실습, 체크리스트, 팀 적용 액션
 
 ## HTML 조작법
 
@@ -26,10 +39,6 @@ https://sykim-kr.github.io/Recency-latency-lecture/
 - End: 마지막 슬라이드
 - Speaker Notes는 각 슬라이드 하단의 접이식 영역에서 확인 가능
 
-## PowerPoint
-
-GitHub repo에서 `recency-latency-retention-crm-lecture-draft.pptx` 파일을 다운로드하면 됩니다.
-
 ## 주의
 
-이 파일은 공개 확인용 강의자료 초안입니다. 원본 작업 파일, 메모리, 개인 설정, 토큰 등은 포함하지 않았습니다.
+이 폴더는 공개 확인용 강의자료만 포함합니다. 원본 PDF, 작업 노트, 개인 메모리, 토큰, 내부 설정 파일은 포함하지 않습니다.
